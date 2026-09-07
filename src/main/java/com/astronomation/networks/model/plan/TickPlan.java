@@ -14,9 +14,31 @@ public interface TickPlan {
 
     Sentinel terminalAverage();
 
+    interface Builder {
+
+        Sentinel.Builder sentinel();
+
+        Builder preCycleTick(Sentinel sentinel);
+
+        Builder terminalCycleTick(Sentinel sentinel);
+
+        Builder terminalAverage(Sentinel sentinel);
+
+        TickPlan build();
+
+    }
+
     interface Sentinel {
 
         Set<Delta> deltas(Network.Node node);
+
+        interface Builder {
+
+            Builder delta(Network.Node node, String item, BigRational quantity);
+
+            Sentinel build();
+
+        }
 
     }
 
