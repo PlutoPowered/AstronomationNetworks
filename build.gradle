@@ -1,0 +1,61 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group 'com.astronomation.networks'
+version '0.0.0'
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://jitpack.io' }
+}
+
+dependencies {
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(24))
+    }
+}
+
+tasks.register('htmlJavadocs', Javadoc) {
+    destinationDir = file("/docs")
+
+    source = sourceSets.main.allJava
+    classpath = configurations.runtimeClasspath
+}
+
+tasks.register('javadocJar', Jar) {
+    from javadoc
+    archiveClassifier.set("javadoc")
+}
+
+tasks.register('sourceJar', Jar) {
+    from sourceSets.main.allSource
+    archiveClassifier.set("source")
+}
+
+artifacts {
+    archives javadocJar, sourceJar
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = rootProject.name
+
+            from components.java
+
+            artifact sourceJar
+            artifact javadocJar
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}

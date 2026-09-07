@@ -1,0 +1,99 @@
+name: Java CI
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'master'
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: JDK 21 & 24 Install
+        uses: actions/setup-java@v4
+        with:
+          java-version: |
+            24
+            21
+          distribution: 'adopt'
+          cache: gradle
+
+      - name: Permit Wrapper
+        run: chmod +x gradlew
+
+      - name: Test
+        run: ./gradlew clean test
+
+      - name: List Files
+        id: list-files
+        uses: mirko-felice/list-files-action@v3.0.5
+        with:
+          repo: ${{ github.repository }}
+          ref: ${{ github.ref }}
+          path: "."
+          ext: ".gradle"
+
+      - name: Extract Version
+        id: extract-version
+        env:
+          FILES: ${{ steps.list-files.outputs.paths }}
+        run: |
+          echo "Files: $FILES"
+          echo "$FILES" | jq -r -c '.[]' | while read file; do
+            echo "Detected gradle file: $file"
+            path="$GITHUB_WORKSPACE${file:1}"
+            echo "Path: $path"
+            ver=$(awk '$1 == "version"{gsub(/'\''/, "", $2); print $2; exit}' $path)
+            if [ ! -z "$ver" ]; then
+              echo "Found version: $ver"
+              echo "ver=$ver" >> $GITHUB_OUTPUT
+              break
+            fi
+          done
+
+      - name: Check For Tag
+        uses: mukunku/tag-exists-action@v1.6.0
+        id: tag-check
+        with:
+          tag: ${{ steps.extract-version.outputs.ver }}
+
+      - env:
+          TAG_EXISTS: ${{ steps.tag-check.outputs.exists }}
+        run: echo "Tag already exists - $TAG_EXISTS (if false, a new one will be created)"
+
+      - name: Create Tag
+        if: steps.tag-check.outputs.exists == 'false' && steps.extract-version.outputs.ver != ''
+        uses: tvdias/github-tagger@v0.0.2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.extract-version.outputs.ver }}
+
+      - name: Permit Wrapper
+        run: chmod +x gradlew
+
+      - name: Build
+        run: ./gradlew build
+
+      - name: Create Release
+        if: steps.tag-check.outputs.exists == 'false' && steps.extract-version.outputs.ver != ''
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.extract-version.outputs.ver }}
+          generateReleaseNotes: true
+          makeLatest: true
+          artifacts: "**/build/libs/*.jar"
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Artifacts
+          path: build/libs
+
+      - name: Clean Cache
+        run: |
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          rm -f ~/.gradle/caches/modules-2/gc.properties

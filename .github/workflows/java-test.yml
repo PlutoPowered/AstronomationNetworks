@@ -1,0 +1,38 @@
+name: Java Test
+
+on:
+  push:
+    branches:
+      - '*'
+      - '!main'
+      - '!master'
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: JDK 21 & 24 Install
+        uses: actions/setup-java@v4
+        with:
+          java-version: |
+            24
+            21
+          distribution: 'adopt'
+          cache: gradle
+
+      - name: Permit Wrapper
+        run: chmod +x gradlew
+
+      - name: Test
+        run: ./gradlew clean test
+
+      - name: Build
+        run: ./gradlew build
+
+      - name: Clean Cache
+        run: |
+          rm -f ~/.gradle/caches/modules-2/modules-2.lock
+          rm -f ~/.gradle/caches/modules-2/gc.properties
