@@ -26,8 +26,7 @@ public class InstantaneousUniversalNetwork implements Network {
 
     }
 
-    public record Storage(String name, BigRational chargeRatePerTick, BigRational dischargeRatePerTick,
-                           BigRational currentStorage, BigRational maxStorage) implements InstantNode {
+    public record Storage(String name, BigRational chargeRatePerTick, BigRational dischargeRatePerTick, BigRational currentStorage, BigRational maxStorage) implements InstantNode {
 
     }
 
@@ -44,9 +43,15 @@ public class InstantaneousUniversalNetwork implements Network {
     private final BigRational totalConsumption;
 
     public InstantaneousUniversalNetwork(Collection<? extends InstantNode> nodes, DeficitPolicy deficitPolicy, String item) {
-        if (nodes == null) throw new IllegalArgumentException("nodes must not be null");
-        if (deficitPolicy == null) throw new IllegalArgumentException("deficitPolicy must not be null");
-        if (item == null || item.isBlank()) throw new IllegalArgumentException("item must not be blank");
+        if (nodes == null) {
+            throw new IllegalArgumentException("nodes must not be null");
+        }
+        if (deficitPolicy == null) {
+            throw new IllegalArgumentException("deficitPolicy must not be null");
+        }
+        if (item == null || item.isBlank()) {
+            throw new IllegalArgumentException("item must not be blank");
+        }
 
         List<Producer> producers = new ArrayList<>();
         List<Consumer> consumers = new ArrayList<>();
@@ -66,11 +71,15 @@ public class InstantaneousUniversalNetwork implements Network {
         this.item = item;
 
         BigRational totalProduction = BigRational.ZERO;
-        for (Producer p : this.producers) totalProduction = totalProduction.add(p.productionPerTick());
+        for (Producer p : this.producers) {
+            totalProduction = totalProduction.add(p.productionPerTick());
+        }
         this.totalProduction = totalProduction;
 
         BigRational totalConsumption = BigRational.ZERO;
-        for (Consumer c : this.consumers) totalConsumption = totalConsumption.add(c.consumptionPerTick());
+        for (Consumer c : this.consumers) {
+            totalConsumption = totalConsumption.add(c.consumptionPerTick());
+        }
         this.totalConsumption = totalConsumption;
     }
 
@@ -111,7 +120,9 @@ public class InstantaneousUniversalNetwork implements Network {
 
         while (!active.isEmpty() && driving.signum() > 0) {
             BigRational totalCap = BigRational.ZERO;
-            for (Storage s : active) totalCap = totalCap.add(charging ? s.chargeRatePerTick() : s.dischargeRatePerTick());
+            for (Storage s : active) {
+                totalCap = totalCap.add(charging ? s.chargeRatePerTick() : s.dischargeRatePerTick());
+            }
 
             BigRational totalToDistribute = BigRational.min(driving, totalCap);
 
@@ -124,25 +135,31 @@ public class InstantaneousUniversalNetwork implements Network {
             BigRational delivered = charging ? totalConsumption : totalProduction.add(totalToDistribute);
 
             BigRational tMin = null;
-            for (Storage s : active) tMin = BigRational.min(tMin, remaining.get(s).div(rate.get(s)));
+            for (Storage s : active) {
+                tMin = BigRational.min(tMin, remaining.get(s).div(rate.get(s)));
+            }
 
             long wholeTicks = tMin.numerator().divide(tMin.denominator()).longValueExact();
             BigRational frac = tMin.sub(BigRational.of(wholeTicks));
 
             if (wholeTicks > 0) {
-                for (long i = 0; i < wholeTicks; i++)
+                for (long i = 0; i < wholeTicks; i++) {
                     builder = appendTick(builder.preCycleTick(), active, rate, charging, delivered);
-                for (Storage s : active)
+                }
+                for (Storage s : active) {
                     remaining.put(s, remaining.get(s).sub(rate.get(s).mul(BigRational.of(wholeTicks))));
+                }
             }
 
             if (frac.signum() > 0) {
                 Map<Storage, BigRational> transitionRate = new IdentityHashMap<>();
-                for (Storage s : active)
+                for (Storage s : active) {
                     transitionRate.put(s, BigRational.min(rate.get(s), remaining.get(s)));
+                }
                 builder = appendTick(builder.preCycleTick(), active, transitionRate, charging, delivered);
-                for (Storage s : active)
+                for (Storage s : active) {
                     remaining.put(s, remaining.get(s).sub(transitionRate.get(s)));
+                }
             }
 
             active.removeIf(s -> remaining.get(s).compareTo(BigRational.ZERO) == 0);
@@ -151,11 +168,14 @@ public class InstantaneousUniversalNetwork implements Network {
         return builder;
     }
 
-    private TickPlan.Builder appendTick(TickPlan.Sentinel.Builder sentinel, Set<Storage> active, Map<Storage, BigRational> rate,
-                                         boolean charging, BigRational delivered) {
-        for (Producer p : producers) sentinel.delta(p, item, p.productionPerTick());
+    private TickPlan.Builder appendTick(TickPlan.Sentinel.Builder sentinel, Set<Storage> active, Map<Storage, BigRational> rate, boolean charging, BigRational delivered) {
+        for (Producer p : producers) {
+            sentinel.delta(p, item, p.productionPerTick());
+        }
 
-        for (Consumer c : consumers) sentinel.delta(c, item, deliveredRateFor(c, delivered));
+        for (Consumer c : consumers) {
+            sentinel.delta(c, item, deliveredRateFor(c, delivered));
+        }
 
         for (Storage s : storages) {
             BigRational magnitude = active.contains(s) ? rate.get(s) : BigRational.ZERO;
@@ -166,8 +186,12 @@ public class InstantaneousUniversalNetwork implements Network {
     }
 
     private BigRational deliveredRateFor(Consumer c, BigRational delivered) {
-        if (totalConsumption.signum() == 0) return BigRational.ZERO;
-        if (delivered.compareTo(totalConsumption) >= 0) return c.consumptionPerTick();
+        if (totalConsumption.signum() == 0) {
+            return BigRational.ZERO;
+        }
+        if (delivered.compareTo(totalConsumption) >= 0) {
+            return c.consumptionPerTick();
+        }
         return switch (deficitPolicy) {
             case BLACKOUT -> BigRational.ZERO;
             case BROWNOUT -> c.consumptionPerTick().mul(delivered).div(totalConsumption);
