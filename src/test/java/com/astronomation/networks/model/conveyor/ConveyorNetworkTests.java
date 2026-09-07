@@ -4,6 +4,7 @@ import com.astronomation.networks.math.BigRational;
 import com.astronomation.networks.math.graph.LinearMatrixNetworkNode;
 import com.astronomation.networks.model.Identifier;
 import com.astronomation.networks.model.Network;
+import com.astronomation.networks.model.plan.InvalidCycleException;
 import com.astronomation.networks.model.plan.TickPlan;
 import com.astronomation.networks.model.plan.stub.StubTickPlanBuilder;
 import org.junit.jupiter.api.Test;
@@ -220,7 +221,8 @@ public class ConveyorNetworkTests {
 
         ConveyorNetwork network = new ConveyorNetwork(List.of(p, m));
 
-        assertThrows(IllegalStateException.class, () -> network.plan(new StubTickPlanBuilder()));
+        InvalidCycleException exception = assertThrows(InvalidCycleException.class, () -> network.plan(new StubTickPlanBuilder()));
+        assertEquals(List.of(m), exception.cycle());
     }
 
 }
