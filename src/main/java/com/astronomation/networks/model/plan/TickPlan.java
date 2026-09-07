@@ -16,13 +16,11 @@ public interface TickPlan {
 
     interface Builder {
 
-        Sentinel.Builder sentinel();
+        Sentinel.Builder preCycleTick();
 
-        Builder preCycleTick(Sentinel sentinel);
+        Sentinel.Builder terminalCycleTick();
 
-        Builder terminalCycleTick(Sentinel sentinel);
-
-        Builder terminalAverage(Sentinel sentinel);
+        Sentinel.Builder terminalAverage();
 
         TickPlan build();
 
@@ -36,7 +34,7 @@ public interface TickPlan {
 
             Builder delta(Network.Node node, String item, BigRational quantity);
 
-            Sentinel build();
+            TickPlan.Builder build();
 
         }
 

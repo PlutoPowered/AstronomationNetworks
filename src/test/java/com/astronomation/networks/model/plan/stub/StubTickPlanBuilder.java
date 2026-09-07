@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class StubTickPlanBuilder implements TickPlan.Builder {
 
@@ -19,26 +20,18 @@ public class StubTickPlanBuilder implements TickPlan.Builder {
     private TickPlan.Sentinel terminalAverage = new StubSentinel(Map.of());
 
     @Override
-    public TickPlan.Sentinel.Builder sentinel() {
-        return new StubSentinelBuilder();
+    public TickPlan.Sentinel.Builder preCycleTick() {
+        return new StubSentinelBuilder(this, preCycle::add);
     }
 
     @Override
-    public TickPlan.Builder preCycleTick(TickPlan.Sentinel sentinel) {
-        preCycle.add(sentinel);
-        return this;
+    public TickPlan.Sentinel.Builder terminalCycleTick() {
+        return new StubSentinelBuilder(this, terminalCycle::add);
     }
 
     @Override
-    public TickPlan.Builder terminalCycleTick(TickPlan.Sentinel sentinel) {
-        terminalCycle.add(sentinel);
-        return this;
-    }
-
-    @Override
-    public TickPlan.Builder terminalAverage(TickPlan.Sentinel sentinel) {
-        this.terminalAverage = sentinel;
-        return this;
+    public TickPlan.Sentinel.Builder terminalAverage() {
+        return new StubSentinelBuilder(this, sentinel -> this.terminalAverage = sentinel);
     }
 
     @Override
@@ -64,7 +57,14 @@ record StubSentinel(Map<Network.Node, Set<TickPlan.Delta>> byNode) implements Ti
 
 class StubSentinelBuilder implements TickPlan.Sentinel.Builder {
 
+    private final TickPlan.Builder parent;
+    private final Consumer<TickPlan.Sentinel> commit;
     private final Map<Network.Node, Set<TickPlan.Delta>> byNode = new IdentityHashMap<>();
+
+    StubSentinelBuilder(TickPlan.Builder parent, Consumer<TickPlan.Sentinel> commit) {
+        this.parent = parent;
+        this.commit = commit;
+    }
 
     @Override
     public TickPlan.Sentinel.Builder delta(Network.Node node, String item, BigRational quantity) {
@@ -73,8 +73,9 @@ class StubSentinelBuilder implements TickPlan.Sentinel.Builder {
     }
 
     @Override
-    public TickPlan.Sentinel build() {
-        return new StubSentinel(Collections.unmodifiableMap(new IdentityHashMap<>(byNode)));
+    public TickPlan.Builder build() {
+        commit.accept(new StubSentinel(Collections.unmodifiableMap(new IdentityHashMap<>(byNode))));
+        return parent;
     }
 
 }

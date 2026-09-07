@@ -19,37 +19,16 @@ public class InstantaneousUniversalNetwork implements Network {
     }
 
     public record Producer(String name, BigRational productionPerTick) implements InstantNode {
-        public Producer {
-            if (name == null) throw new IllegalArgumentException("name must not be null");
-            if (productionPerTick == null || productionPerTick.signum() < 0)
-                throw new IllegalArgumentException("productionPerTick must be >= 0");
-        }
+
     }
 
     public record Consumer(String name, BigRational consumptionPerTick) implements InstantNode {
-        public Consumer {
-            if (name == null) throw new IllegalArgumentException("name must not be null");
-            if (consumptionPerTick == null || consumptionPerTick.signum() < 0)
-                throw new IllegalArgumentException("consumptionPerTick must be >= 0");
-        }
+
     }
 
     public record Storage(String name, BigRational chargeRatePerTick, BigRational dischargeRatePerTick,
                            BigRational currentStorage, BigRational maxStorage) implements InstantNode {
-        public Storage {
-            if (name == null) throw new IllegalArgumentException("name must not be null");
-            requireNonNegative(chargeRatePerTick, "chargeRatePerTick");
-            requireNonNegative(dischargeRatePerTick, "dischargeRatePerTick");
-            requireNonNegative(currentStorage, "currentStorage");
-            requireNonNegative(maxStorage, "maxStorage");
-            if (currentStorage.compareTo(maxStorage) > 0)
-                throw new IllegalArgumentException("currentStorage must be <= maxStorage");
-        }
 
-        private static void requireNonNegative(BigRational value, String field) {
-            if (value == null || value.signum() < 0)
-                throw new IllegalArgumentException(field + " must be >= 0");
-        }
     }
 
     public enum DeficitPolicy {
@@ -99,32 +78,26 @@ public class InstantaneousUniversalNetwork implements Network {
     public TickPlan plan(TickPlan.Builder builder) {
         int cmp = totalProduction.compareTo(totalConsumption);
 
-        List<TickPlan.Sentinel> preCycle;
         BigRational terminalDelivered;
         if (cmp > 0) {
-            preCycle = runPhases(builder, true, totalProduction.sub(totalConsumption));
+            builder = runPhases(builder, true, totalProduction.sub(totalConsumption));
             terminalDelivered = totalConsumption;
         } else if (cmp < 0) {
-            preCycle = runPhases(builder, false, totalConsumption.sub(totalProduction));
+            builder = runPhases(builder, false, totalConsumption.sub(totalProduction));
             terminalDelivered = totalProduction;
         } else {
-            preCycle = List.of();
             terminalDelivered = totalConsumption;
         }
 
-        for (TickPlan.Sentinel sentinel : preCycle) builder.preCycleTick(sentinel);
-
         Set<Storage> noActiveStorage = Set.of();
-        TickPlan.Sentinel terminal = buildSentinel(builder, noActiveStorage, Map.of(), cmp >= 0, terminalDelivered);
-        builder.terminalCycleTick(terminal);
-        builder.terminalAverage(terminal);
+        Map<Storage, BigRational> noRates = Map.of();
+        builder = appendTick(builder.terminalCycleTick(), noActiveStorage, noRates, cmp >= 0, terminalDelivered);
+        builder = appendTick(builder.terminalAverage(), noActiveStorage, noRates, cmp >= 0, terminalDelivered);
 
         return builder.build();
     }
 
-    private List<TickPlan.Sentinel> runPhases(TickPlan.Builder builder, boolean charging, BigRational driving) {
-        List<TickPlan.Sentinel> ticks = new ArrayList<>();
-
+    private TickPlan.Builder runPhases(TickPlan.Builder builder, boolean charging, BigRational driving) {
         Map<Storage, BigRational> remaining = new IdentityHashMap<>();
         Set<Storage> active = Collections.newSetFromMap(new IdentityHashMap<>());
         for (Storage s : storages) {
@@ -157,8 +130,8 @@ public class InstantaneousUniversalNetwork implements Network {
             BigRational frac = tMin.sub(BigRational.of(wholeTicks));
 
             if (wholeTicks > 0) {
-                TickPlan.Sentinel steady = buildSentinel(builder, active, rate, charging, delivered);
-                for (long i = 0; i < wholeTicks; i++) ticks.add(steady);
+                for (long i = 0; i < wholeTicks; i++)
+                    builder = appendTick(builder.preCycleTick(), active, rate, charging, delivered);
                 for (Storage s : active)
                     remaining.put(s, remaining.get(s).sub(rate.get(s).mul(BigRational.of(wholeTicks))));
             }
@@ -167,7 +140,7 @@ public class InstantaneousUniversalNetwork implements Network {
                 Map<Storage, BigRational> transitionRate = new IdentityHashMap<>();
                 for (Storage s : active)
                     transitionRate.put(s, BigRational.min(rate.get(s), remaining.get(s)));
-                ticks.add(buildSentinel(builder, active, transitionRate, charging, delivered));
+                builder = appendTick(builder.preCycleTick(), active, transitionRate, charging, delivered);
                 for (Storage s : active)
                     remaining.put(s, remaining.get(s).sub(transitionRate.get(s)));
             }
@@ -175,13 +148,11 @@ public class InstantaneousUniversalNetwork implements Network {
             active.removeIf(s -> remaining.get(s).compareTo(BigRational.ZERO) == 0);
         }
 
-        return ticks;
+        return builder;
     }
 
-    private TickPlan.Sentinel buildSentinel(TickPlan.Builder builder, Set<Storage> active, Map<Storage, BigRational> rate,
-                                             boolean charging, BigRational delivered) {
-        TickPlan.Sentinel.Builder sentinel = builder.sentinel();
-
+    private TickPlan.Builder appendTick(TickPlan.Sentinel.Builder sentinel, Set<Storage> active, Map<Storage, BigRational> rate,
+                                         boolean charging, BigRational delivered) {
         for (Producer p : producers) sentinel.delta(p, item, p.productionPerTick());
 
         for (Consumer c : consumers) sentinel.delta(c, item, deliveredRateFor(c, delivered));
