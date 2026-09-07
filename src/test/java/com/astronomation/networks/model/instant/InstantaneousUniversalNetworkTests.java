@@ -1,6 +1,7 @@
 package com.astronomation.networks.model.instant;
 
 import com.astronomation.networks.math.BigRational;
+import com.astronomation.networks.model.Identifier;
 import com.astronomation.networks.model.Network;
 import com.astronomation.networks.model.plan.TickPlan;
 import com.astronomation.networks.model.plan.stub.StubTickPlanBuilder;
@@ -21,11 +22,11 @@ public class InstantaneousUniversalNetworkTests {
 
     @Test
     public void test_balanced_noStorage_immediateSteady_2node() {
-        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer("P", BigRational.of(10));
-        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer("C", BigRational.of(10));
+        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer(new Identifier.String("P"), BigRational.of(10));
+        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer(new Identifier.String("C"), BigRational.of(10));
 
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
-                List.of(p, c), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, "power");
+                List.of(p, c), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
         TickPlan plan = network.plan(new StubTickPlanBuilder());
 
@@ -39,13 +40,13 @@ public class InstantaneousUniversalNetworkTests {
 
     @Test
     public void test_surplus_singleStorage_chargesToFull_thenSteady_3node() {
-        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer("P", BigRational.of(10));
-        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer("C", BigRational.of(6));
+        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer(new Identifier.String("P"), BigRational.of(10));
+        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer(new Identifier.String("C"), BigRational.of(6));
         InstantaneousUniversalNetwork.Storage s = new InstantaneousUniversalNetwork.Storage(
-                "S", BigRational.of(2), BigRational.of(1), BigRational.of(0), BigRational.of(8));
+                new Identifier.String("S"), BigRational.of(2), BigRational.of(1), BigRational.of(0), BigRational.of(8));
 
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
-                List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, "power");
+                List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
         TickPlan plan = network.plan(new StubTickPlanBuilder());
 
@@ -63,13 +64,13 @@ public class InstantaneousUniversalNetworkTests {
 
     @Test
     public void test_deficit_singleStorage_fullyCoversDeficitWhileDraining_thenBrownout_3node() {
-        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer("P", BigRational.of(2));
-        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer("C", BigRational.of(5));
+        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer(new Identifier.String("P"), BigRational.of(2));
+        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer(new Identifier.String("C"), BigRational.of(5));
         InstantaneousUniversalNetwork.Storage s = new InstantaneousUniversalNetwork.Storage(
-                "S", BigRational.of(1), BigRational.of(5), BigRational.of(6), BigRational.of(20));
+                new Identifier.String("S"), BigRational.of(1), BigRational.of(5), BigRational.of(6), BigRational.of(20));
 
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
-                List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, "power");
+                List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
         TickPlan plan = network.plan(new StubTickPlanBuilder());
 
@@ -86,13 +87,13 @@ public class InstantaneousUniversalNetworkTests {
 
     @Test
     public void test_deficit_singleStorage_blackoutVariant_3node() {
-        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer("P", BigRational.of(2));
-        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer("C", BigRational.of(5));
+        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer(new Identifier.String("P"), BigRational.of(2));
+        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer(new Identifier.String("C"), BigRational.of(5));
         InstantaneousUniversalNetwork.Storage s = new InstantaneousUniversalNetwork.Storage(
-                "S", BigRational.of(1), BigRational.of(5), BigRational.of(6), BigRational.of(20));
+                new Identifier.String("S"), BigRational.of(1), BigRational.of(5), BigRational.of(6), BigRational.of(20));
 
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
-                List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BLACKOUT, "power");
+                List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BLACKOUT, new Identifier.String("power"));
 
         TickPlan plan = network.plan(new StubTickPlanBuilder());
 
@@ -107,13 +108,13 @@ public class InstantaneousUniversalNetworkTests {
 
     @Test
     public void test_deficit_capacityBelowDeficit_throttlesDuringPreCycle_3node() {
-        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer("P", BigRational.of(4));
-        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer("C", BigRational.of(10));
+        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer(new Identifier.String("P"), BigRational.of(4));
+        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer(new Identifier.String("C"), BigRational.of(10));
         InstantaneousUniversalNetwork.Storage s = new InstantaneousUniversalNetwork.Storage(
-                "S", BigRational.of(1), BigRational.of(3), BigRational.of(9), BigRational.of(20));
+                new Identifier.String("S"), BigRational.of(1), BigRational.of(3), BigRational.of(9), BigRational.of(20));
 
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
-                List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, "power");
+                List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
         TickPlan plan = network.plan(new StubTickPlanBuilder());
 
@@ -129,15 +130,15 @@ public class InstantaneousUniversalNetworkTests {
 
     @Test
     public void test_multipleStorages_proportionalSplitCharging_phaseTransition_4node() {
-        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer("P", BigRational.of(20));
-        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer("C", BigRational.of(5));
+        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer(new Identifier.String("P"), BigRational.of(20));
+        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer(new Identifier.String("C"), BigRational.of(5));
         InstantaneousUniversalNetwork.Storage a = new InstantaneousUniversalNetwork.Storage(
-                "A", BigRational.of(2), BigRational.of(1), BigRational.of(0), BigRational.of(4));
+                new Identifier.String("A"), BigRational.of(2), BigRational.of(1), BigRational.of(0), BigRational.of(4));
         InstantaneousUniversalNetwork.Storage b = new InstantaneousUniversalNetwork.Storage(
-                "B", BigRational.of(4), BigRational.of(1), BigRational.of(0), BigRational.of(4));
+                new Identifier.String("B"), BigRational.of(4), BigRational.of(1), BigRational.of(0), BigRational.of(4));
 
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
-                List.of(p, c, a, b), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, "power");
+                List.of(p, c, a, b), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
         TickPlan plan = network.plan(new StubTickPlanBuilder());
 
@@ -160,15 +161,15 @@ public class InstantaneousUniversalNetworkTests {
 
     @Test
     public void test_multipleStorages_proportionalSplitDischarging_phaseTransition_4node() {
-        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer("P", BigRational.of(2));
-        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer("C", BigRational.of(20));
+        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer(new Identifier.String("P"), BigRational.of(2));
+        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer(new Identifier.String("C"), BigRational.of(20));
         InstantaneousUniversalNetwork.Storage a = new InstantaneousUniversalNetwork.Storage(
-                "A", BigRational.of(1), BigRational.of(2), BigRational.of(4), BigRational.of(10));
+                new Identifier.String("A"), BigRational.of(1), BigRational.of(2), BigRational.of(4), BigRational.of(10));
         InstantaneousUniversalNetwork.Storage b = new InstantaneousUniversalNetwork.Storage(
-                "B", BigRational.of(1), BigRational.of(3), BigRational.of(9), BigRational.of(10));
+                new Identifier.String("B"), BigRational.of(1), BigRational.of(3), BigRational.of(9), BigRational.of(10));
 
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
-                List.of(p, c, a, b), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, "power");
+                List.of(p, c, a, b), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
         TickPlan plan = network.plan(new StubTickPlanBuilder());
 
@@ -195,13 +196,13 @@ public class InstantaneousUniversalNetworkTests {
 
     @Test
     public void test_storage_startsPartiallyCharged_honoredAsInput_4node() {
-        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer("P", BigRational.of(10));
-        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer("C", BigRational.of(6));
+        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer(new Identifier.String("P"), BigRational.of(10));
+        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer(new Identifier.String("C"), BigRational.of(6));
         InstantaneousUniversalNetwork.Storage s = new InstantaneousUniversalNetwork.Storage(
-                "S", BigRational.of(4), BigRational.of(2), BigRational.of(5), BigRational.of(9));
+                new Identifier.String("S"), BigRational.of(4), BigRational.of(2), BigRational.of(5), BigRational.of(9));
 
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
-                List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, "power");
+                List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
         TickPlan plan = network.plan(new StubTickPlanBuilder());
 
@@ -214,13 +215,13 @@ public class InstantaneousUniversalNetworkTests {
 
     @Test
     public void test_exactIntegerTickBoundary_noTransitionTick_3node() {
-        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer("P", BigRational.of(10));
-        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer("C", BigRational.of(6));
+        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer(new Identifier.String("P"), BigRational.of(10));
+        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer(new Identifier.String("C"), BigRational.of(6));
         InstantaneousUniversalNetwork.Storage s = new InstantaneousUniversalNetwork.Storage(
-                "S", BigRational.of(2), BigRational.of(1), BigRational.of(0), BigRational.of(8));
+                new Identifier.String("S"), BigRational.of(2), BigRational.of(1), BigRational.of(0), BigRational.of(8));
 
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
-                List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, "power");
+                List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
         TickPlan plan = network.plan(new StubTickPlanBuilder());
 
@@ -232,13 +233,13 @@ public class InstantaneousUniversalNetworkTests {
 
     @Test
     public void test_fractionalTickBoundary_exactTransitionRemainder_3node() {
-        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer("P", BigRational.of(10));
-        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer("C", BigRational.of(3));
+        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer(new Identifier.String("P"), BigRational.of(10));
+        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer(new Identifier.String("C"), BigRational.of(3));
         InstantaneousUniversalNetwork.Storage s = new InstantaneousUniversalNetwork.Storage(
-                "S", BigRational.of(3), BigRational.of(1), BigRational.of(0), BigRational.of(10));
+                new Identifier.String("S"), BigRational.of(3), BigRational.of(1), BigRational.of(0), BigRational.of(10));
 
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
-                List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, "power");
+                List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
         TickPlan plan = network.plan(new StubTickPlanBuilder());
 
@@ -254,11 +255,11 @@ public class InstantaneousUniversalNetworkTests {
 
     @Test
     public void test_deficit_noStorage_brownout_2node() {
-        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer("P", BigRational.of(3));
-        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer("C", BigRational.of(10));
+        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer(new Identifier.String("P"), BigRational.of(3));
+        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer(new Identifier.String("C"), BigRational.of(10));
 
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
-                List.of(p, c), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, "power");
+                List.of(p, c), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
         TickPlan plan = network.plan(new StubTickPlanBuilder());
 
@@ -269,11 +270,11 @@ public class InstantaneousUniversalNetworkTests {
 
     @Test
     public void test_deficit_noStorage_blackout_2node() {
-        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer("P", BigRational.of(3));
-        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer("C", BigRational.of(10));
+        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer(new Identifier.String("P"), BigRational.of(3));
+        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer(new Identifier.String("C"), BigRational.of(10));
 
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
-                List.of(p, c), InstantaneousUniversalNetwork.DeficitPolicy.BLACKOUT, "power");
+                List.of(p, c), InstantaneousUniversalNetwork.DeficitPolicy.BLACKOUT, new Identifier.String("power"));
 
         TickPlan plan = network.plan(new StubTickPlanBuilder());
 
@@ -284,11 +285,11 @@ public class InstantaneousUniversalNetworkTests {
 
     @Test
     public void test_terminalAverage_equalsTerminalCycleSentinel_2node() {
-        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer("P", BigRational.of(7));
-        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer("C", BigRational.of(7));
+        InstantaneousUniversalNetwork.Producer p = new InstantaneousUniversalNetwork.Producer(new Identifier.String("P"), BigRational.of(7));
+        InstantaneousUniversalNetwork.Consumer c = new InstantaneousUniversalNetwork.Consumer(new Identifier.String("C"), BigRational.of(7));
 
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
-                List.of(p, c), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, "power");
+                List.of(p, c), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
         TickPlan plan = network.plan(new StubTickPlanBuilder());
 

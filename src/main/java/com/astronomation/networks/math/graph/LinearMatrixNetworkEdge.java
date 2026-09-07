@@ -1,14 +1,15 @@
 package com.astronomation.networks.math.graph;
 
 import com.astronomation.networks.math.BigRational;
+import com.astronomation.networks.model.Identifier;
 
 public class LinearMatrixNetworkEdge {
     private LinearMatrixNetworkNode link;
-    private String item;
+    private Identifier item;
     private BigRational throughputMax;
     private BigRational quantity;
 
-    public LinearMatrixNetworkEdge(LinearMatrixNetworkNode link, String item, BigRational throughputMax, BigRational quantity) {
+    public LinearMatrixNetworkEdge(LinearMatrixNetworkNode link, Identifier item, BigRational throughputMax, BigRational quantity) {
         this.link = link;
         this.item = item;
         this.throughputMax = throughputMax;
@@ -19,7 +20,7 @@ public class LinearMatrixNetworkEdge {
         return this.link;
     }
 
-    public String item() {
+    public Identifier item() {
         return this.item;
     }
 

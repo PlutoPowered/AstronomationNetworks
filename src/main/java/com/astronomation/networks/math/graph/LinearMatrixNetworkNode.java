@@ -1,14 +1,16 @@
 package com.astronomation.networks.math.graph;
 
+import com.astronomation.networks.model.Identifier;
+
 import java.util.List;
 
 public class LinearMatrixNetworkNode {
-    private String name;
+    private Identifier name;
     private Type type;
     private List<LinearMatrixNetworkEdge> inputs;
     private List<LinearMatrixNetworkEdge> outputs;
 
-    public LinearMatrixNetworkNode(String name, Type type) {
+    public LinearMatrixNetworkNode(Identifier name, Type type) {
         this.name = name;
         this.type = type;
     }
@@ -31,7 +33,7 @@ public class LinearMatrixNetworkNode {
         return this;
     }
 
-    public String name() {
+    public Identifier name() {
         return this.name;
     }
 

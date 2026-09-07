@@ -1,6 +1,7 @@
 package com.astronomation.networks.model.plan.stub;
 
 import com.astronomation.networks.math.BigRational;
+import com.astronomation.networks.model.Identifier;
 import com.astronomation.networks.model.Network;
 import com.astronomation.networks.model.plan.TickPlan;
 
@@ -23,7 +24,7 @@ class StubSentinelBuilder implements TickPlan.Sentinel.Builder {
     }
 
     @Override
-    public TickPlan.Sentinel.Builder delta(Network.Node node, String item, BigRational quantity) {
+    public TickPlan.Sentinel.Builder delta(Network.Node node, Identifier item, BigRational quantity) {
         byNode.computeIfAbsent(node, n -> new LinkedHashSet<>()).add(new StubDelta(item, quantity));
         return this;
     }

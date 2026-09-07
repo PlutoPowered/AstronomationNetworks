@@ -5,6 +5,7 @@ import com.astronomation.networks.math.graph.LinearMatrixBuilder;
 import com.astronomation.networks.math.graph.LinearMatrixNetworkEdge;
 import com.astronomation.networks.math.graph.LinearMatrixNetworkNode;
 import com.astronomation.networks.math.simplex.SimplexTableau;
+import com.astronomation.networks.model.Identifier;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -22,11 +23,11 @@ public class NetworkBuilderTests {
     // -------------------------------------------------------------------------
     @Test
     public void test_linear_2node() {
-        LinearMatrixNetworkNode p    = new LinearMatrixNetworkNode("P",    LinearMatrixNetworkNode.Type.PRODUCER);
-        LinearMatrixNetworkNode sink = new LinearMatrixNetworkNode("SINK", LinearMatrixNetworkNode.Type.SINK);
+        LinearMatrixNetworkNode p    = new LinearMatrixNetworkNode(new Identifier.String("P"),    LinearMatrixNetworkNode.Type.PRODUCER);
+        LinearMatrixNetworkNode sink = new LinearMatrixNetworkNode(new Identifier.String("SINK"), LinearMatrixNetworkNode.Type.SINK);
 
-        LinearMatrixNetworkEdge p_out  = new LinearMatrixNetworkEdge(sink, "item", BigRational.of(10), null);
-        LinearMatrixNetworkEdge s_in   = new LinearMatrixNetworkEdge(p,    "item", null, null);
+        LinearMatrixNetworkEdge p_out  = new LinearMatrixNetworkEdge(sink, new Identifier.String("item"), BigRational.of(10), null);
+        LinearMatrixNetworkEdge s_in   = new LinearMatrixNetworkEdge(p,    new Identifier.String("item"), null, null);
 
         p.inputs(List.of()).outputs(List.of(p_out));
         sink.inputs(List.of(s_in)).outputs(List.of());
@@ -51,14 +52,14 @@ public class NetworkBuilderTests {
     // -------------------------------------------------------------------------
     @Test
     public void test_machine_ratio_3node() {
-        LinearMatrixNetworkNode p    = new LinearMatrixNetworkNode("P",    LinearMatrixNetworkNode.Type.PRODUCER);
-        LinearMatrixNetworkNode m    = new LinearMatrixNetworkNode("M",    LinearMatrixNetworkNode.Type.MACHINE);
-        LinearMatrixNetworkNode sink = new LinearMatrixNetworkNode("SINK", LinearMatrixNetworkNode.Type.SINK);
+        LinearMatrixNetworkNode p    = new LinearMatrixNetworkNode(new Identifier.String("P"),    LinearMatrixNetworkNode.Type.PRODUCER);
+        LinearMatrixNetworkNode m    = new LinearMatrixNetworkNode(new Identifier.String("M"),    LinearMatrixNetworkNode.Type.MACHINE);
+        LinearMatrixNetworkNode sink = new LinearMatrixNetworkNode(new Identifier.String("SINK"), LinearMatrixNetworkNode.Type.SINK);
 
-        LinearMatrixNetworkEdge p_out  = new LinearMatrixNetworkEdge(m,    "ore",   BigRational.of(20), null);
-        LinearMatrixNetworkEdge m_in   = new LinearMatrixNetworkEdge(p,    "ore",   null, BigRational.of(2));
-        LinearMatrixNetworkEdge m_out  = new LinearMatrixNetworkEdge(sink, "plate", null, BigRational.of(1));
-        LinearMatrixNetworkEdge s_in   = new LinearMatrixNetworkEdge(m,    "plate", null, null);
+        LinearMatrixNetworkEdge p_out  = new LinearMatrixNetworkEdge(m,    new Identifier.String("ore"),   BigRational.of(20), null);
+        LinearMatrixNetworkEdge m_in   = new LinearMatrixNetworkEdge(p,    new Identifier.String("ore"),   null, BigRational.of(2));
+        LinearMatrixNetworkEdge m_out  = new LinearMatrixNetworkEdge(sink, new Identifier.String("plate"), null, BigRational.of(1));
+        LinearMatrixNetworkEdge s_in   = new LinearMatrixNetworkEdge(m,    new Identifier.String("plate"), null, null);
 
         p.inputs(List.of()).outputs(List.of(p_out));
         m.inputs(List.of(m_in)).outputs(List.of(m_out));
@@ -87,17 +88,17 @@ public class NetworkBuilderTests {
     // -------------------------------------------------------------------------
     @Test
     public void test_splitter_tree_4node() {
-        LinearMatrixNetworkNode p     = new LinearMatrixNetworkNode("P",     LinearMatrixNetworkNode.Type.PRODUCER);
-        LinearMatrixNetworkNode spl   = new LinearMatrixNetworkNode("SPL",   LinearMatrixNetworkNode.Type.SPLITTER);
-        LinearMatrixNetworkNode sink1 = new LinearMatrixNetworkNode("SINK1", LinearMatrixNetworkNode.Type.SINK);
-        LinearMatrixNetworkNode sink2 = new LinearMatrixNetworkNode("SINK2", LinearMatrixNetworkNode.Type.SINK);
+        LinearMatrixNetworkNode p     = new LinearMatrixNetworkNode(new Identifier.String("P"),     LinearMatrixNetworkNode.Type.PRODUCER);
+        LinearMatrixNetworkNode spl   = new LinearMatrixNetworkNode(new Identifier.String("SPL"),   LinearMatrixNetworkNode.Type.SPLITTER);
+        LinearMatrixNetworkNode sink1 = new LinearMatrixNetworkNode(new Identifier.String("SINK1"), LinearMatrixNetworkNode.Type.SINK);
+        LinearMatrixNetworkNode sink2 = new LinearMatrixNetworkNode(new Identifier.String("SINK2"), LinearMatrixNetworkNode.Type.SINK);
 
-        LinearMatrixNetworkEdge p_out    = new LinearMatrixNetworkEdge(spl,   "item", BigRational.of(12), null);
-        LinearMatrixNetworkEdge spl_in   = new LinearMatrixNetworkEdge(p,     "item", null, null);
-        LinearMatrixNetworkEdge spl_out1 = new LinearMatrixNetworkEdge(sink1, "item", null, null);
-        LinearMatrixNetworkEdge spl_out2 = new LinearMatrixNetworkEdge(sink2, "item", null, null);
-        LinearMatrixNetworkEdge s1_in    = new LinearMatrixNetworkEdge(spl,   "item", null, null);
-        LinearMatrixNetworkEdge s2_in    = new LinearMatrixNetworkEdge(spl,   "item", null, null);
+        LinearMatrixNetworkEdge p_out    = new LinearMatrixNetworkEdge(spl,   new Identifier.String("item"), BigRational.of(12), null);
+        LinearMatrixNetworkEdge spl_in   = new LinearMatrixNetworkEdge(p,     new Identifier.String("item"), null, null);
+        LinearMatrixNetworkEdge spl_out1 = new LinearMatrixNetworkEdge(sink1, new Identifier.String("item"), null, null);
+        LinearMatrixNetworkEdge spl_out2 = new LinearMatrixNetworkEdge(sink2, new Identifier.String("item"), null, null);
+        LinearMatrixNetworkEdge s1_in    = new LinearMatrixNetworkEdge(spl,   new Identifier.String("item"), null, null);
+        LinearMatrixNetworkEdge s2_in    = new LinearMatrixNetworkEdge(spl,   new Identifier.String("item"), null, null);
 
         p.inputs(List.of()).outputs(List.of(p_out));
         spl.inputs(List.of(spl_in)).outputs(List.of(spl_out1, spl_out2));
@@ -130,17 +131,17 @@ public class NetworkBuilderTests {
     // -------------------------------------------------------------------------
     @Test
     public void test_merger_tree_4node() {
-        LinearMatrixNetworkNode p1   = new LinearMatrixNetworkNode("P1",   LinearMatrixNetworkNode.Type.PRODUCER);
-        LinearMatrixNetworkNode p2   = new LinearMatrixNetworkNode("P2",   LinearMatrixNetworkNode.Type.PRODUCER);
-        LinearMatrixNetworkNode mer  = new LinearMatrixNetworkNode("MER",  LinearMatrixNetworkNode.Type.MERGER);
-        LinearMatrixNetworkNode sink = new LinearMatrixNetworkNode("SINK", LinearMatrixNetworkNode.Type.SINK);
+        LinearMatrixNetworkNode p1   = new LinearMatrixNetworkNode(new Identifier.String("P1"),   LinearMatrixNetworkNode.Type.PRODUCER);
+        LinearMatrixNetworkNode p2   = new LinearMatrixNetworkNode(new Identifier.String("P2"),   LinearMatrixNetworkNode.Type.PRODUCER);
+        LinearMatrixNetworkNode mer  = new LinearMatrixNetworkNode(new Identifier.String("MER"),  LinearMatrixNetworkNode.Type.MERGER);
+        LinearMatrixNetworkNode sink = new LinearMatrixNetworkNode(new Identifier.String("SINK"), LinearMatrixNetworkNode.Type.SINK);
 
-        LinearMatrixNetworkEdge p1_out  = new LinearMatrixNetworkEdge(mer,  "iron",  BigRational.of(5), null);
-        LinearMatrixNetworkEdge p2_out  = new LinearMatrixNetworkEdge(mer,  "coal",  BigRational.of(8), null);
-        LinearMatrixNetworkEdge mer_in1 = new LinearMatrixNetworkEdge(p1,   "iron",  null, null);
-        LinearMatrixNetworkEdge mer_in2 = new LinearMatrixNetworkEdge(p2,   "coal",  null, null);
-        LinearMatrixNetworkEdge mer_out = new LinearMatrixNetworkEdge(sink, "mixed", null, null);
-        LinearMatrixNetworkEdge s_in    = new LinearMatrixNetworkEdge(mer,  "mixed", null, null);
+        LinearMatrixNetworkEdge p1_out  = new LinearMatrixNetworkEdge(mer,  new Identifier.String("iron"),  BigRational.of(5), null);
+        LinearMatrixNetworkEdge p2_out  = new LinearMatrixNetworkEdge(mer,  new Identifier.String("coal"),  BigRational.of(8), null);
+        LinearMatrixNetworkEdge mer_in1 = new LinearMatrixNetworkEdge(p1,   new Identifier.String("iron"),  null, null);
+        LinearMatrixNetworkEdge mer_in2 = new LinearMatrixNetworkEdge(p2,   new Identifier.String("coal"),  null, null);
+        LinearMatrixNetworkEdge mer_out = new LinearMatrixNetworkEdge(sink, new Identifier.String("mixed"), null, null);
+        LinearMatrixNetworkEdge s_in    = new LinearMatrixNetworkEdge(mer,  new Identifier.String("mixed"), null, null);
 
         p1.inputs(List.of()).outputs(List.of(p1_out));
         p2.inputs(List.of()).outputs(List.of(p2_out));
@@ -171,17 +172,17 @@ public class NetworkBuilderTests {
     // -------------------------------------------------------------------------
     @Test
     public void test_cross_branch_5node() {
-        LinearMatrixNetworkNode p1   = new LinearMatrixNetworkNode("P1",   LinearMatrixNetworkNode.Type.PRODUCER);
-        LinearMatrixNetworkNode p2   = new LinearMatrixNetworkNode("P2",   LinearMatrixNetworkNode.Type.PRODUCER);
-        LinearMatrixNetworkNode m    = new LinearMatrixNetworkNode("M",    LinearMatrixNetworkNode.Type.MACHINE);
-        LinearMatrixNetworkNode sink = new LinearMatrixNetworkNode("SINK", LinearMatrixNetworkNode.Type.SINK);
+        LinearMatrixNetworkNode p1   = new LinearMatrixNetworkNode(new Identifier.String("P1"),   LinearMatrixNetworkNode.Type.PRODUCER);
+        LinearMatrixNetworkNode p2   = new LinearMatrixNetworkNode(new Identifier.String("P2"),   LinearMatrixNetworkNode.Type.PRODUCER);
+        LinearMatrixNetworkNode m    = new LinearMatrixNetworkNode(new Identifier.String("M"),    LinearMatrixNetworkNode.Type.MACHINE);
+        LinearMatrixNetworkNode sink = new LinearMatrixNetworkNode(new Identifier.String("SINK"), LinearMatrixNetworkNode.Type.SINK);
 
-        LinearMatrixNetworkEdge p1_out = new LinearMatrixNetworkEdge(m,    "ore",   BigRational.of(10), null);
-        LinearMatrixNetworkEdge p2_out = new LinearMatrixNetworkEdge(m,    "coal",  BigRational.of(6),  null);
-        LinearMatrixNetworkEdge m_in1  = new LinearMatrixNetworkEdge(p1,   "ore",   null, BigRational.of(1));
-        LinearMatrixNetworkEdge m_in2  = new LinearMatrixNetworkEdge(p2,   "coal",  null, BigRational.of(1));
-        LinearMatrixNetworkEdge m_out  = new LinearMatrixNetworkEdge(sink, "plate", null, BigRational.of(2));
-        LinearMatrixNetworkEdge s_in   = new LinearMatrixNetworkEdge(m,    "plate", null, null);
+        LinearMatrixNetworkEdge p1_out = new LinearMatrixNetworkEdge(m,    new Identifier.String("ore"),   BigRational.of(10), null);
+        LinearMatrixNetworkEdge p2_out = new LinearMatrixNetworkEdge(m,    new Identifier.String("coal"),  BigRational.of(6),  null);
+        LinearMatrixNetworkEdge m_in1  = new LinearMatrixNetworkEdge(p1,   new Identifier.String("ore"),   null, BigRational.of(1));
+        LinearMatrixNetworkEdge m_in2  = new LinearMatrixNetworkEdge(p2,   new Identifier.String("coal"),  null, BigRational.of(1));
+        LinearMatrixNetworkEdge m_out  = new LinearMatrixNetworkEdge(sink, new Identifier.String("plate"), null, BigRational.of(2));
+        LinearMatrixNetworkEdge s_in   = new LinearMatrixNetworkEdge(m,    new Identifier.String("plate"), null, null);
 
         p1.inputs(List.of()).outputs(List.of(p1_out));
         p2.inputs(List.of()).outputs(List.of(p2_out));
@@ -215,20 +216,20 @@ public class NetworkBuilderTests {
     // -------------------------------------------------------------------------
     @Test
     public void test_loop_back_4node() {
-        LinearMatrixNetworkNode p    = new LinearMatrixNetworkNode("P",    LinearMatrixNetworkNode.Type.PRODUCER);
-        LinearMatrixNetworkNode m    = new LinearMatrixNetworkNode("M",    LinearMatrixNetworkNode.Type.MACHINE);
-        LinearMatrixNetworkNode spl  = new LinearMatrixNetworkNode("SPL",  LinearMatrixNetworkNode.Type.SPLITTER);
-        LinearMatrixNetworkNode sink = new LinearMatrixNetworkNode("SINK", LinearMatrixNetworkNode.Type.SINK);
+        LinearMatrixNetworkNode p    = new LinearMatrixNetworkNode(new Identifier.String("P"),    LinearMatrixNetworkNode.Type.PRODUCER);
+        LinearMatrixNetworkNode m    = new LinearMatrixNetworkNode(new Identifier.String("M"),    LinearMatrixNetworkNode.Type.MACHINE);
+        LinearMatrixNetworkNode spl  = new LinearMatrixNetworkNode(new Identifier.String("SPL"),  LinearMatrixNetworkNode.Type.SPLITTER);
+        LinearMatrixNetworkNode sink = new LinearMatrixNetworkNode(new Identifier.String("SINK"), LinearMatrixNetworkNode.Type.SINK);
 
-        LinearMatrixNetworkEdge p_out        = new LinearMatrixNetworkEdge(m,    "item", BigRational.of(10), null);
-        LinearMatrixNetworkEdge m_out        = new LinearMatrixNetworkEdge(spl,  "item", null, null);
-        LinearMatrixNetworkEdge spl_to_sink  = new LinearMatrixNetworkEdge(sink, "item", null, null);
-        LinearMatrixNetworkEdge spl_to_m     = new LinearMatrixNetworkEdge(m,    "item", BigRational.of(5),  null);  // loop back, cap=5
+        LinearMatrixNetworkEdge p_out        = new LinearMatrixNetworkEdge(m,    new Identifier.String("item"), BigRational.of(10), null);
+        LinearMatrixNetworkEdge m_out        = new LinearMatrixNetworkEdge(spl,  new Identifier.String("item"), null, null);
+        LinearMatrixNetworkEdge spl_to_sink  = new LinearMatrixNetworkEdge(sink, new Identifier.String("item"), null, null);
+        LinearMatrixNetworkEdge spl_to_m     = new LinearMatrixNetworkEdge(m,    new Identifier.String("item"), BigRational.of(5),  null);  // loop back, cap=5
 
-        LinearMatrixNetworkEdge m_in_p   = new LinearMatrixNetworkEdge(p,   "item", null, null);
-        LinearMatrixNetworkEdge m_in_spl = new LinearMatrixNetworkEdge(spl, "item", null, null);
-        LinearMatrixNetworkEdge spl_in   = new LinearMatrixNetworkEdge(m,   "item", null, null);
-        LinearMatrixNetworkEdge sink_in  = new LinearMatrixNetworkEdge(spl, "item", null, null);
+        LinearMatrixNetworkEdge m_in_p   = new LinearMatrixNetworkEdge(p,   new Identifier.String("item"), null, null);
+        LinearMatrixNetworkEdge m_in_spl = new LinearMatrixNetworkEdge(spl, new Identifier.String("item"), null, null);
+        LinearMatrixNetworkEdge spl_in   = new LinearMatrixNetworkEdge(m,   new Identifier.String("item"), null, null);
+        LinearMatrixNetworkEdge sink_in  = new LinearMatrixNetworkEdge(spl, new Identifier.String("item"), null, null);
 
         p.inputs(List.of()).outputs(List.of(p_out));
         m.inputs(List.of(m_in_p, m_in_spl)).outputs(List.of(m_out));

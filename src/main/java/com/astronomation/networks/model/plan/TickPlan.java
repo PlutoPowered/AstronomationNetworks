@@ -1,6 +1,7 @@
 package com.astronomation.networks.model.plan;
 
 import com.astronomation.networks.math.BigRational;
+import com.astronomation.networks.model.Identifier;
 import com.astronomation.networks.model.Network;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public interface TickPlan {
 
         interface Builder {
 
-            Builder delta(Network.Node node, String item, BigRational quantity);
+            Builder delta(Network.Node node, Identifier item, BigRational quantity);
 
             TickPlan.Builder build();
 
@@ -42,7 +43,7 @@ public interface TickPlan {
 
     interface Delta {
 
-        String item();
+        Identifier item();
 
         BigRational quantity();
 
