@@ -1,4 +1,4 @@
-package com.astronomation.networks.model.plan;
+package com.astronomation.networks.model.plan.exception;
 
 import com.astronomation.networks.model.Network;
 

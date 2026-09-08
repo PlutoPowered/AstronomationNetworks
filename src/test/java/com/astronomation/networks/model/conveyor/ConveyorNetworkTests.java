@@ -4,8 +4,8 @@ import com.astronomation.networks.math.BigRational;
 import com.astronomation.networks.math.graph.LinearMatrixNetworkNode;
 import com.astronomation.networks.model.Identifier;
 import com.astronomation.networks.model.Network;
-import com.astronomation.networks.model.plan.InvalidCycleException;
 import com.astronomation.networks.model.plan.TickPlan;
+import com.astronomation.networks.model.plan.exception.InvalidCycleException;
 import com.astronomation.networks.model.plan.stub.StubTickPlanBuilder;
 import org.junit.jupiter.api.Test;
 

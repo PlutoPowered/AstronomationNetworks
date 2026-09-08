@@ -7,8 +7,10 @@ import com.astronomation.networks.math.graph.LinearMatrixNetworkNode;
 import com.astronomation.networks.math.simplex.SimplexTableau;
 import com.astronomation.networks.model.Identifier;
 import com.astronomation.networks.model.Network;
-import com.astronomation.networks.model.plan.InvalidCycleException;
 import com.astronomation.networks.model.plan.TickPlan;
+import com.astronomation.networks.model.plan.exception.InfeasibleNetworkException;
+import com.astronomation.networks.model.plan.exception.InvalidCycleException;
+import com.astronomation.networks.model.plan.exception.TickPlanInternalException;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -128,7 +130,7 @@ public class ConveyorNetwork implements Network {
                 .solve();
 
         if (!tableau.solved()) {
-            throw new IllegalStateException("ConveyorNetwork has no feasible steady-state solution");
+            throw new InfeasibleNetworkException("ConveyorNetwork has no feasible steady-state solution");
         }
 
         List<ConveyorNode> order = topologicalOrder(tableau);
@@ -227,7 +229,7 @@ public class ConveyorNetwork implements Network {
             }
         }
 
-        throw new IllegalStateException("expected a cycle among unresolved nodes");
+        throw new TickPlanInternalException("expected a cycle among unresolved nodes");
     }
 
     private List<ConveyorNode> findCycle(ConveyorNode node, Set<ConveyorNode> remaining, Map<ConveyorNode, List<ConveyorNode>> adjacency, List<ConveyorNode> path, Set<ConveyorNode> onPath, Set<ConveyorNode> visited) {
