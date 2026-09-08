@@ -4,7 +4,7 @@ import com.astronomation.networks.model.Network;
 
 import java.util.List;
 
-public class InvalidCycleException extends TickPlanFailedException {
+public class InvalidCycleException extends UnsolvableNetworkException {
 
     private final List<Network.Node> cycle;
 
