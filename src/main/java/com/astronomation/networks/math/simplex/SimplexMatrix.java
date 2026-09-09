@@ -2,28 +2,41 @@ package com.astronomation.networks.math.simplex;
 
 import com.astronomation.networks.math.BigRational;
 
+import java.util.List;
+import java.util.Map;
+
 public class SimplexMatrix {
     private int[] basis;
     private BigRational[] basisCoefficients;
 
     private BigRational[] maxCoefficients;
-    private BigRational[][] coefficients; //[col][row]
+    private List<Map<Integer, BigRational>> columns; //[col] -> sparse row->coefficient, the original (never mutated) constraint matrix
+    private BigRational[][] basisInverse; //[row][row], the current basis inverse
+    private BigRational[] price; //c_B^T * basisInverse, maintained incrementally rather than recomputed every step
+
     private int cols;
     private int rows;
 
     private BigRational[] constantColumn;
 
-    public SimplexMatrix(int[] basis, BigRational[] basisCoefficients, BigRational[] maxCoefficients, BigRational[][] coefficients, BigRational[] constantColumn) {
+    public SimplexMatrix(int[] basis, BigRational[] basisCoefficients, BigRational[] maxCoefficients, List<Map<Integer, BigRational>> columns, BigRational[] constantColumn) {
         this.basis = basis;
         this.basisCoefficients = basisCoefficients;
         this.maxCoefficients = maxCoefficients;
-        this.coefficients = coefficients;
+        this.columns = columns;
         this.constantColumn = constantColumn;
 
-        this.cols = coefficients.length;
-        if (this.cols > 1) {
-            this.rows = coefficients[0].length;
+        this.cols = columns.size();
+        this.rows = constantColumn.length;
+
+        this.basisInverse = new BigRational[this.rows][this.rows];
+        for (int row = 0; row < this.rows; row++) {
+            for (int col = 0; col < this.rows; col++) {
+                this.basisInverse[row][col] = row == col ? BigRational.ONE : BigRational.ZERO;
+            }
         }
+
+        this.price = basisCoefficients.clone();
     }
 
     public void solve(int maxIters) {
@@ -43,18 +56,11 @@ public class SimplexMatrix {
     }
 
     public StepResult step() {
+        //Find the pivot col: price reduced costs off the sparse original columns instead of a dense per-row scan
         BigRational maxPivot = null;
         int keyCol = -1;
-
-        //Find the pivot col
-        for (int col = 0; col < this.coefficients.length; col++) {
-            BigRational[] rowArr = this.coefficients[col];
-            BigRational z_j = BigRational.ZERO;
-            for (int row = 0; row < rowArr.length; row++) {
-                z_j = z_j.add(this.basisCoefficients[row].mul(rowArr[row]));
-            }
-
-            BigRational benefit = this.maxCoefficients[col].sub(z_j);
+        for (int col = 0; col < this.cols; col++) {
+            BigRational benefit = this.maxCoefficients[col].sub(dot(this.price, this.columns.get(col)));
             if (maxPivot == null || maxPivot.compareTo(benefit) < 0) {
                 maxPivot = benefit;
                 keyCol = col;
@@ -66,13 +72,16 @@ public class SimplexMatrix {
             return StepResult.TERMINATE;
         }
 
+        //Expand the chosen column into current-basis coordinates via B^-1 * A_j, needed for both the ratio test and the pivot
+        BigRational[] enteringColumn = expand(this.columns.get(keyCol));
+
         //Find the pivot row
         BigRational minPivot = null;
         int minVar = 0;
         int keyRow = -1;
-        for (int row = 0; row < this.constantColumn.length; row++) {
-            if (this.coefficients[keyCol][row].compareTo(BigRational.ZERO) > 0) {
-                BigRational ratio = this.constantColumn[row].div(this.coefficients[keyCol][row]);
+        for (int row = 0; row < this.rows; row++) {
+            if (enteringColumn[row].compareTo(BigRational.ZERO) > 0) {
+                BigRational ratio = this.constantColumn[row].div(enteringColumn[row]);
                 int cmp = minPivot == null ? 0 : minPivot.compareTo(ratio);
 
                 if (minPivot == null || cmp > 0 || (cmp == 0 && this.basis[row] < minVar)) {
@@ -83,37 +92,75 @@ public class SimplexMatrix {
             }
         }
 
-        if (minPivot == null) return StepResult.TERMINATE;
+        if (minPivot == null) {
+            return StepResult.TERMINATE;
+        }
 
         //Replace the old basis with the new pivot basis
-        BigRational pivot = this.coefficients[keyCol][keyRow];
+        BigRational pivot = enteringColumn[keyRow];
         this.basis[keyRow] = keyCol;
         this.basisCoefficients[keyRow] = this.maxCoefficients[keyCol];
 
-        //Divide each element in the pivot row by the pivot element
-        for (int col = 0; col < this.coefficients.length; col++) {
-            this.coefficients[col][keyRow] = this.coefficients[col][keyRow].div(pivot).reduce();
+        //Divide the pivot row of the basis inverse by the pivot element, and update price incrementally off of it:
+        //price_new = price_old + benefit * (updated pivot row of basisInverse) — avoids recomputing c_B^T * basisInverse from scratch
+        for (int col = 0; col < this.rows; col++) {
+            BigRational scaled = this.basisInverse[keyRow][col].div(pivot).reduce();
+            this.basisInverse[keyRow][col] = scaled;
+            this.price[col] = this.price[col].add(maxPivot.mul(scaled)).reduce();
         }
         this.constantColumn[keyRow] = this.constantColumn[keyRow].div(pivot).reduce();
 
-        //Adjust coefficients to be relative to the pivot row
+        //Adjust every other row of the basis inverse relative to the pivot row; the dense per-column sweep only ever
+        //touches the rows x rows inverse now, never the (much larger) column count
         for (int row = 0; row < this.rows; row++) {
-            BigRational factor = this.coefficients[keyCol][row];
-            if (row != keyRow) {
-                for (int col = 0; col < this.cols; col++) {
-                    this.coefficients[col][row] = this.coefficients[col][row].sub(factor.mul(this.coefficients[col][keyRow])).reduce();
-                }
-
-                this.constantColumn[row] = this.constantColumn[row].sub(factor.mul(this.constantColumn[keyRow])).reduce();
+            if (row == keyRow) {
+                continue;
             }
+
+            BigRational factor = enteringColumn[row];
+            if (factor.signum() == 0) {
+                continue;
+            }
+
+            for (int col = 0; col < this.rows; col++) {
+                this.basisInverse[row][col] = this.basisInverse[row][col].sub(factor.mul(this.basisInverse[keyRow][col])).reduce();
+            }
+            this.constantColumn[row] = this.constantColumn[row].sub(factor.mul(this.constantColumn[keyRow])).reduce();
         }
 
         return StepResult.CONTINUE;
     }
 
+    private static BigRational dot(BigRational[] price, Map<Integer, BigRational> sparseColumn) {
+        BigRational sum = BigRational.ZERO;
+        for (Map.Entry<Integer, BigRational> entry : sparseColumn.entrySet()) {
+            sum = sum.add(price[entry.getKey()].mul(entry.getValue()));
+        }
+        return sum.reduce();
+    }
+
+    private BigRational[] expand(Map<Integer, BigRational> sparseColumn) {
+        BigRational[] result = new BigRational[this.rows];
+        for (int row = 0; row < this.rows; row++) {
+            result[row] = BigRational.ZERO;
+        }
+
+        for (Map.Entry<Integer, BigRational> entry : sparseColumn.entrySet()) {
+            int structuralRow = entry.getKey();
+            BigRational coefficient = entry.getValue();
+            for (int row = 0; row < this.rows; row++) {
+                result[row] = result[row].add(this.basisInverse[row][structuralRow].mul(coefficient)).reduce();
+            }
+        }
+
+        return result;
+    }
+
     public BigRational variable(int index) {
         for (int i = 0; i < this.basis.length; i++) {
-            if (this.basis[i] == index) return this.constantColumn[i];
+            if (this.basis[i] == index) {
+                return this.constantColumn[i];
+            }
         }
 
         return BigRational.ZERO;

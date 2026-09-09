@@ -184,7 +184,10 @@ public class SimplexBuilder {
         BigRational[] basisCoeffs = new BigRational[rowCount];
 
         BigRational[] maxCoeffs = new BigRational[colCount];
-        BigRational[][] coefficients = new BigRational[colCount][rowCount];
+        List<Map<Integer, BigRational>> columns = new ArrayList<>(colCount);
+        for (int i = 0; i < colCount; i++) {
+            columns.add(new HashMap<>());
+        }
         BigRational[] constantColumn = new BigRational[rowCount];
 
         for (int i = 0; i < colCount; i++) {
@@ -200,11 +203,9 @@ public class SimplexBuilder {
         for (int row = 0; row < rowCount; row++) {
             Row curr = rows.get(row);
             constantColumn[row] = curr.constant();
-            for (int col = 0; col < colCount; col++) {
-                if (curr.variables().containsKey(col)) {
-                    coefficients[col][row] = curr.variables().get(col).coef();
-                } else {
-                    coefficients[col][row] = BigRational.ZERO;
+            for (Variable var : curr.variables().values()) {
+                if (var.coef().signum() != 0) {
+                    columns.get(var.index()).put(row, var.coef());
                 }
             }
         }
@@ -212,20 +213,8 @@ public class SimplexBuilder {
         int currBasis = 0;
 
         for (int col = 0; col < colCount; col++) {
-            boolean unit = false;
-            for (int row = 0; row < rowCount; row++) {
-                if (coefficients[col][row].equals(BigRational.ONE)) {
-                    if (unit) {
-                        unit = false;
-                        break;
-                    } else {
-                        unit = true;
-                    }
-                } else if (!coefficients[col][row].equals(BigRational.ZERO)) {
-                    unit = false;
-                    break;
-                }
-            }
+            Map<Integer, BigRational> column = columns.get(col);
+            boolean unit = column.size() == 1 && column.values().iterator().next().equals(BigRational.ONE);
 
             if (unit) {
                 basis[currBasis] = col;
@@ -233,10 +222,12 @@ public class SimplexBuilder {
                 currBasis++;
             }
 
-            if (currBasis >= basis.length) break;
+            if (currBasis >= basis.length) {
+                break;
+            }
         }
 
-        return new SimplexTableau(new SimplexMatrix(basis, basisCoeffs, maxCoeffs, coefficients, constantColumn), new HashMap<>(this.varMap), new HashSet<>(artificialVariables.keySet()), this.objective, new ArrayList<>(this.constraints), inverted);
+        return new SimplexTableau(new SimplexMatrix(basis, basisCoeffs, maxCoeffs, columns, constantColumn), new HashMap<>(this.varMap), new HashSet<>(artificialVariables.keySet()), this.objective, new ArrayList<>(this.constraints), inverted);
     }
 
     private int indexFor(String name) {
