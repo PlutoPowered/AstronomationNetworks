@@ -4,8 +4,8 @@ import com.astronomation.networks.model.plan.TickPlan;
 
 public interface Network {
 
-    TickPlan plan();
-    
+    TickPlan plan(TickPlan.Builder builder);
+
     interface Node {
 
     }

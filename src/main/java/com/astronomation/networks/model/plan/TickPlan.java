@@ -1,6 +1,7 @@
 package com.astronomation.networks.model.plan;
 
 import com.astronomation.networks.math.BigRational;
+import com.astronomation.networks.model.Identifier;
 import com.astronomation.networks.model.Network;
 
 import java.util.List;
@@ -14,15 +15,35 @@ public interface TickPlan {
 
     Sentinel terminalAverage();
 
+    interface Builder {
+
+        Sentinel.Builder preCycleTick();
+
+        Sentinel.Builder terminalCycleTick();
+
+        Sentinel.Builder terminalAverage();
+
+        TickPlan build();
+
+    }
+
     interface Sentinel {
 
         Set<Delta> deltas(Network.Node node);
+
+        interface Builder {
+
+            Builder delta(Network.Node node, Identifier item, BigRational quantity);
+
+            TickPlan.Builder build();
+
+        }
 
     }
 
     interface Delta {
 
-        String item();
+        Identifier item();
 
         BigRational quantity();
 

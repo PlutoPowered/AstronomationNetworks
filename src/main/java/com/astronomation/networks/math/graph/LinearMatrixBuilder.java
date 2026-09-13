@@ -69,7 +69,7 @@ public class LinearMatrixBuilder {
                 LinearMatrixNetworkNode dest = edge.link();
                 List<LinearMatrixNetworkNode> key = List.of(node, dest);
                 if (!vars.containsKey(key)) {
-                    vars.put(key, "e_" + node.name() + "_" + dest.name());
+                    vars.put(key, "e_" + node.name().id() + "_" + dest.name().id());
                     edgeByKey.put(key, edge);
                 }
             }
@@ -112,7 +112,7 @@ public class LinearMatrixBuilder {
                 case MACHINE -> {
                     // Enforce recipe ratios via a machine-rate variable: flow_edge = quantity * r_machine
                     // Each edge gets its own equality: flow_edge - quantity * r_machine = 0
-                    String rateVar = "r_" + node.name();
+                    String rateVar = "r_" + node.name().id();
                     boolean anyRatio = false;
 
                     for (LinearMatrixNetworkEdge edge : ins) {
