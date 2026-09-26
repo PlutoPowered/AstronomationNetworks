@@ -11,6 +11,7 @@ import com.astronomation.networks.model.conveyor.ConveyorNetwork;
 import com.astronomation.networks.model.instant.InstantaneousUniversalNetwork;
 import com.astronomation.networks.model.plan.TickPlan;
 import com.astronomation.networks.model.plan.stub.StubTickPlanBuilder;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -23,6 +24,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Tag("benchmark")
 public class NetworkPerformanceBenchmark {
 
     private static final int[] SIZES = {5, 10, 20, 50, 200, 500, 1000};
