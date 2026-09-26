@@ -32,8 +32,10 @@ floating point cannot guarantee. Any new numeric code in this project must use `
   producer output. This solves for a **steady-state** flow — splitter/merger splits are left continuous and
   underdetermined (no discrete round-robin at this layer). See `NetworkBuilderTests` for worked examples
   (2-node line, machine ratio, splitter tree, merger tree, cross-branch bottleneck, loop-back cycle).
-- `model` / `model.plan` — `Network`/`TickPlan`: the tick-level model, currently still interfaces
-  (work in progress, no implementation yet). This is the layer meant to simulate discrete ticks (buffers,
+- `model` / `model.plan` — `Network`/`TickPlanner`/`TickPlan`: the tick-level model. Networks expose a pausable
+  `planner(builder)` (`iterate()` = one step, returns true while more remain; `plan()` yields the result);
+  `Network.plan(builder)` just loops it. `ConveyorNetwork` and `InstantaneousUniversalNetwork` have planners;
+  `model.plan.simple` holds the simple in-memory `TickPlan` builder/plan implementations. This is the layer meant to simulate discrete ticks (buffers,
   belt contents, discrete splitter/merger allocation) and answer "what happens on this exact tick."
 
 The LP layer (`math.graph`) and the tick layer (`model.plan`) answer different questions: the LP gives you

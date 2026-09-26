@@ -6,7 +6,7 @@ import com.astronomation.networks.model.Identifier;
 import com.astronomation.networks.model.Network;
 import com.astronomation.networks.model.plan.TickPlan;
 import com.astronomation.networks.model.plan.exception.InvalidCycleException;
-import com.astronomation.networks.model.plan.stub.StubTickPlanBuilder;
+import com.astronomation.networks.model.plan.simple.SimpleTickPlanBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -37,7 +37,7 @@ public class ConveyorNetworkTests {
         sink.inputs(List.of(sinkIn)).outputs(List.of());
 
         ConveyorNetwork network = new ConveyorNetwork(List.of(p, sink));
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertEquals(3, plan.preCycle().size());
         for (TickPlan.Sentinel tick : plan.preCycle()) {
@@ -64,7 +64,7 @@ public class ConveyorNetworkTests {
         sink.inputs(List.of(sinkIn)).outputs(List.of());
 
         ConveyorNetwork network = new ConveyorNetwork(List.of(p, sink));
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertTrue(plan.preCycle().isEmpty());
         TickPlan.Sentinel terminal = plan.terminalCycle().get(0);
@@ -96,7 +96,7 @@ public class ConveyorNetworkTests {
         sink.inputs(List.of(sinkIn)).outputs(List.of());
 
         ConveyorNetwork network = new ConveyorNetwork(List.of(p1, p2, m, sink));
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertEquals(6, plan.preCycle().size());
         for (int tick = 0; tick < 5; tick++) {
@@ -141,7 +141,7 @@ public class ConveyorNetworkTests {
         sink.inputs(List.of(sinkIn)).outputs(List.of());
 
         ConveyorNetwork network = new ConveyorNetwork(List.of(p1, p2, mer, sink));
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertEquals(6, plan.preCycle().size());
         for (int tick = 0; tick < 4; tick++) {
@@ -183,7 +183,7 @@ public class ConveyorNetworkTests {
         sink.inputs(List.of(sinkIn)).outputs(List.of());
 
         ConveyorNetwork network = new ConveyorNetwork(List.of(p, m, sink));
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertEquals(5, plan.preCycle().size());
         for (TickPlan.Sentinel tick : plan.preCycle()) {
@@ -221,7 +221,7 @@ public class ConveyorNetworkTests {
 
         ConveyorNetwork network = new ConveyorNetwork(List.of(p, m));
 
-        InvalidCycleException exception = assertThrows(InvalidCycleException.class, () -> network.plan(new StubTickPlanBuilder()));
+        InvalidCycleException exception = assertThrows(InvalidCycleException.class, () -> network.plan(new SimpleTickPlanBuilder()));
         assertEquals(List.of(m), exception.cycle());
     }
 

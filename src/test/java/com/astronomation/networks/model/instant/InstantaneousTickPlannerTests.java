@@ -5,7 +5,7 @@ import com.astronomation.networks.model.Identifier;
 import com.astronomation.networks.model.plan.TickPlan;
 import com.astronomation.networks.model.plan.TickPlanner;
 import com.astronomation.networks.model.plan.exception.IllegalPlanStateException;
-import com.astronomation.networks.model.plan.stub.StubTickPlanBuilder;
+import com.astronomation.networks.model.plan.simple.SimpleTickPlanBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -24,9 +24,9 @@ public class InstantaneousTickPlannerTests {
     @Test
     public void test_manualIteration_matchesBlockingPlan() {
         InstantaneousUniversalNetwork network = chargingNetwork();
-        TickPlan expected = network.plan(new StubTickPlanBuilder());
+        TickPlan expected = network.plan(new SimpleTickPlanBuilder());
 
-        TickPlanner planner = network.planner(new StubTickPlanBuilder());
+        TickPlanner planner = network.planner(new SimpleTickPlanBuilder());
         int steps = 1;
         while (planner.iterate()) {
             steps++;
@@ -40,14 +40,14 @@ public class InstantaneousTickPlannerTests {
 
     @Test
     public void test_planBeforeFinished_throws() {
-        TickPlanner planner = chargingNetwork().planner(new StubTickPlanBuilder());
+        TickPlanner planner = chargingNetwork().planner(new SimpleTickPlanBuilder());
         planner.iterate();
         assertThrows(IllegalPlanStateException.class, planner::plan);
     }
 
     @Test
     public void test_iterateAfterFinished_returnsFalse() {
-        TickPlanner planner = chargingNetwork().planner(new StubTickPlanBuilder());
+        TickPlanner planner = chargingNetwork().planner(new SimpleTickPlanBuilder());
         while (planner.iterate());
         assertFalse(planner.iterate());
         assertNotNull(planner.plan());

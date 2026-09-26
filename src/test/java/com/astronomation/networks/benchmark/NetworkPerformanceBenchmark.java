@@ -10,7 +10,7 @@ import com.astronomation.networks.model.Identifier;
 import com.astronomation.networks.model.conveyor.ConveyorNetwork;
 import com.astronomation.networks.model.instant.InstantaneousUniversalNetwork;
 import com.astronomation.networks.model.plan.TickPlan;
-import com.astronomation.networks.model.plan.stub.StubTickPlanBuilder;
+import com.astronomation.networks.model.plan.simple.SimpleTickPlanBuilder;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +35,7 @@ public class NetworkPerformanceBenchmark {
             ConveyorNetwork network = buildConveyorChain(size);
 
             long start = System.nanoTime();
-            TickPlan plan = network.plan(new StubTickPlanBuilder());
+            TickPlan plan = network.plan(new SimpleTickPlanBuilder());
             long elapsedNanos = System.nanoTime() - start;
 
             assertTrue(plan.terminalCycle().size() >= 1);
@@ -49,7 +49,7 @@ public class NetworkPerformanceBenchmark {
             InstantaneousUniversalNetwork network = buildInstantNetwork(size);
 
             long start = System.nanoTime();
-            TickPlan plan = network.plan(new StubTickPlanBuilder());
+            TickPlan plan = network.plan(new SimpleTickPlanBuilder());
             long elapsedNanos = System.nanoTime() - start;
 
             assertTrue(plan.terminalCycle().size() >= 1);

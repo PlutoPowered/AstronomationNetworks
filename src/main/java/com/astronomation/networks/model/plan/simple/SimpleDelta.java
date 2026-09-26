@@ -1,8 +1,8 @@
-package com.astronomation.networks.model.plan.stub;
+package com.astronomation.networks.model.plan.simple;
 
 import com.astronomation.networks.math.BigRational;
 import com.astronomation.networks.model.Identifier;
 import com.astronomation.networks.model.plan.TickPlan;
 
-record StubDelta(Identifier item, BigRational quantity) implements TickPlan.Delta {
+record SimpleDelta(Identifier item, BigRational quantity) implements TickPlan.Delta {
 }

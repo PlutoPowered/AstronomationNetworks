@@ -4,7 +4,7 @@ import com.astronomation.networks.math.BigRational;
 import com.astronomation.networks.model.Identifier;
 import com.astronomation.networks.model.Network;
 import com.astronomation.networks.model.plan.TickPlan;
-import com.astronomation.networks.model.plan.stub.StubTickPlanBuilder;
+import com.astronomation.networks.model.plan.simple.SimpleTickPlanBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public class InstantaneousUniversalNetworkTests {
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
                 List.of(p, c), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertTrue(plan.preCycle().isEmpty());
         assertEquals(1, plan.terminalCycle().size());
@@ -48,7 +48,7 @@ public class InstantaneousUniversalNetworkTests {
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
                 List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertEquals(4, plan.preCycle().size());
         for (TickPlan.Sentinel tick : plan.preCycle()) {
@@ -72,7 +72,7 @@ public class InstantaneousUniversalNetworkTests {
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
                 List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertEquals(2, plan.preCycle().size());
         for (TickPlan.Sentinel tick : plan.preCycle()) {
@@ -95,7 +95,7 @@ public class InstantaneousUniversalNetworkTests {
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
                 List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BLACKOUT, new Identifier.String("power"));
 
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertEquals(2, plan.preCycle().size());
         for (TickPlan.Sentinel tick : plan.preCycle()) {
@@ -116,7 +116,7 @@ public class InstantaneousUniversalNetworkTests {
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
                 List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertEquals(3, plan.preCycle().size());
         for (TickPlan.Sentinel tick : plan.preCycle()) {
@@ -140,7 +140,7 @@ public class InstantaneousUniversalNetworkTests {
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
                 List.of(p, c, a, b), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertEquals(2, plan.preCycle().size());
 
@@ -171,7 +171,7 @@ public class InstantaneousUniversalNetworkTests {
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
                 List.of(p, c, a, b), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertEquals(3, plan.preCycle().size());
 
@@ -204,7 +204,7 @@ public class InstantaneousUniversalNetworkTests {
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
                 List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertEquals(1, plan.preCycle().size());
         assertEquals(BigRational.of(4), quantity(plan.preCycle().get(0), s));
@@ -223,7 +223,7 @@ public class InstantaneousUniversalNetworkTests {
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
                 List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertEquals(4, plan.preCycle().size());
         for (TickPlan.Sentinel tick : plan.preCycle()) {
@@ -241,7 +241,7 @@ public class InstantaneousUniversalNetworkTests {
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
                 List.of(p, c, s), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertEquals(4, plan.preCycle().size());
         assertEquals(BigRational.of(3), quantity(plan.preCycle().get(0), s));
@@ -261,7 +261,7 @@ public class InstantaneousUniversalNetworkTests {
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
                 List.of(p, c), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertTrue(plan.preCycle().isEmpty());
         TickPlan.Sentinel terminal = plan.terminalCycle().get(0);
@@ -276,7 +276,7 @@ public class InstantaneousUniversalNetworkTests {
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
                 List.of(p, c), InstantaneousUniversalNetwork.DeficitPolicy.BLACKOUT, new Identifier.String("power"));
 
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         assertTrue(plan.preCycle().isEmpty());
         TickPlan.Sentinel terminal = plan.terminalCycle().get(0);
@@ -291,7 +291,7 @@ public class InstantaneousUniversalNetworkTests {
         InstantaneousUniversalNetwork network = new InstantaneousUniversalNetwork(
                 List.of(p, c), InstantaneousUniversalNetwork.DeficitPolicy.BROWNOUT, new Identifier.String("power"));
 
-        TickPlan plan = network.plan(new StubTickPlanBuilder());
+        TickPlan plan = network.plan(new SimpleTickPlanBuilder());
 
         TickPlan.Sentinel terminal = plan.terminalCycle().get(0);
         TickPlan.Sentinel average = plan.terminalAverage();
