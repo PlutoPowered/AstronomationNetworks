@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'com.astronomation.networks'
-version '0.0.1'
+version '0.0.2'
 
 repositories {
     mavenCentral()
@@ -57,5 +57,20 @@ publishing {
 }
 
 test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'benchmark'
+    }
+}
+
+// Run manually with: ./gradlew benchmark -i
+tasks.register('benchmark', Test) {
+    description = 'Runs performance benchmarks (excluded from the regular test task)'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'benchmark'
+    }
+    testLogging.showStandardStreams = true
+    outputs.upToDateWhen { false }
 }
